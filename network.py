@@ -137,8 +137,8 @@ def render_pyvis(G):
 
 st.title("🕸️ AI Architecture Diffusion Network")
 st.markdown("""
-Analizza come le architetture AI (Nodi Azzurri) vengono adottate 
-nei diversi campi scientifici (Nodi Rossi) basandosi sul volume di pubblicazioni.
+Analyze how AI architectures (Blue Nodes) are adopted 
+in different scientific fields (Yellow Nodes) based on the volume of publications.
 """)
 
 # 1. Carica file
