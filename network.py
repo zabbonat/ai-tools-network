@@ -27,74 +27,42 @@ def load_data(filepath):
 # 2. COSTRUZIONE DEL GRAFO
 # -----------------------------------------------------------------------------
 def build_graph(df_filtered, min_pubs_threshold):
-    """
-    Costruisce il grafo pesato basato sulle pubblicazioni aggregate.
-    """
-    G = nx.Graph() # O DiGraph se vuoi le frecce, ma Graph è più pulito qui
+    """Costruisce il grafo pesato basato sulle pubblicazioni aggregate."""
+    G = nx.Graph()
     
-    # 1. Raggruppa i dati: Somma le pubblicazioni per Architettura -> Field
-    # (Ignoriamo l'anno qui perché è già stato filtrato prima)
     grouped = df_filtered.groupby(['architecture', 'field_name'])['publications'].sum().reset_index()
-    
-    # Filtra connessioni deboli (rumore)
     grouped = grouped[grouped['publications'] >= min_pubs_threshold]
     
-    # Se non ci sono dati dopo il filtro
     if grouped.empty:
         return G
 
-    # Calcolo totali per dimensionare i nodi
     arch_totals = grouped.groupby('architecture')['publications'].sum()
     field_totals = grouped.groupby('field_name')['publications'].sum()
     
-    # Scala logaritmica per la grandezza dei nodi (per evitare nodi giganti)
     def get_size(val):
         return 10 + np.log1p(val) * 8
 
-    # Aggiunta Nodi ARCHITETTURA (Tools)
+    # Nodi ARCHITETTURA
     for arch, count in arch_totals.items():
-        tooltip = f"🛠️ TOOL: {arch}\n📚 Total Pubs (nel periodo): {int(count)}"
-        G.add_node(
-            arch,
-            group='Tool',
-            title=tooltip,
-            value=int(count), # Per la fisica di PyVis
-            size=get_size(count),
-            color='#00C9FF', # Azzurro Ciano
-            shape='dot'
-        )
+        tooltip = f"🛠️ TOOL: {arch}\n📚 Pubs (periodo): {int(count)}"
+        G.add_node(arch, group='Tool', title=tooltip, value=int(count), 
+                   size=get_size(count), color='#00C9FF', shape='dot')
 
-    # Aggiunta Nodi FIELD (Campi di applicazione)
+    # Nodi FIELD
     for field, count in field_totals.items():
-        tooltip = f"🌍 FIELD: {field}\n📚 Total Pubs (nel periodo): {int(count)}"
-        G.add_node(
-            field,
-            group='Field',
-            title=tooltip,
-            value=int(count),
-            size=get_size(count),
-            color='#FF6B6B', # Rosso Corallo
-            shape='dot' # 'triangle' o 'diamond' per differenziare
-        )
+        tooltip = f"🌍 FIELD: {field}\n📚 Pubs (periodo): {int(count)}"
+        G.add_node(field, group='Field', title=tooltip, value=int(count),
+                   size=get_size(count), color='#FF6B6B', shape='dot')
 
-    # Aggiunta ARCHI (Collegamenti)
+    # ARCHI
     for _, row in grouped.iterrows():
         arch = row['architecture']
         field = row['field_name']
         pubs = row['publications']
-        
-        # Lo spessore (width) dipende dalle pubblicazioni
         weight = 1 + np.log1p(pubs)
-        
         title_edge = f"{arch} -> {field}: {int(pubs)} papers"
         
-        G.add_edge(
-            arch,
-            field,
-            title=title_edge,
-            width=weight,
-            color='#555555' # Grigio scuro
-        )
+        G.add_edge(arch, field, title=title_edge, width=weight, color='#555555')
         
     return G
 
@@ -102,15 +70,8 @@ def build_graph(df_filtered, min_pubs_threshold):
 # 3. RENDERIZZAZIONE PYVIS
 # -----------------------------------------------------------------------------
 def render_pyvis(G):
-    nt = Network(
-        height="700px", 
-        width="100%", 
-        bgcolor="#1E1E1E", # Sfondo scuro stile "Dark Mode"
-        font_color="white"
-    )
+    nt = Network(height="600px", width="100%", bgcolor="#1E1E1E", font_color="white")
     nt.from_nx(G)
-    
-    # Configurazione Fisica: Forza di repulsione per distanziare i nodi
     nt.set_options("""
     var options = {
       "physics": {
@@ -124,9 +85,7 @@ def render_pyvis(G):
         "minVelocity": 0.75,
         "solver": "forceAtlas2Based"
       },
-      "nodes": {
-          "font": { "strokeWidth": 0 }
-      }
+      "nodes": { "font": { "strokeWidth": 0 } }
     }
     """)
     return nt
@@ -136,12 +95,9 @@ def render_pyvis(G):
 # -----------------------------------------------------------------------------
 
 st.title("🕸️ AI Architecture Diffusion Network")
-st.markdown("""
-Analyze how AI architectures (Blue Nodes) are adopted 
-in different scientific fields (Yellow Nodes) based on the volume of publications.
-""")
+st.markdown("Analisi dei flussi di adozione delle architetture AI nei campi scientifici.")
 
-# 1. Carica file
+# --- CARICAMENTO ---
 default_file = 'checkpoint.csv'
 uploaded_file = st.sidebar.file_uploader("Carica CSV Risultati", type=['csv'])
 
@@ -149,84 +105,95 @@ if uploaded_file:
     df = load_data(uploaded_file)
 elif os.path.exists(default_file):
     df = load_data(default_file)
-    st.sidebar.success(f"File predefinito caricato: {len(df)} righe")
 else:
-    st.error(f"Nessun file trovato. Carica il file '{default_file}' generato dallo script precedente.")
+    st.error(f"Nessun file trovato. Carica il file '{default_file}'.")
     st.stop()
 
-# 2. Controlli Sidebar
-st.sidebar.header("🎛️ Filtri Temporali e Metriche")
+# --- SIDEBAR FILTRI ---
+st.sidebar.header("🎛️ Filtri Globali")
+min_year, max_year = int(df['year'].min()), int(df['year'].max())
+selected_years = st.sidebar.slider("Periodo di Analisi", min_year, max_year, (min_year, max_year))
+min_pubs = st.sidebar.slider("Soglia Minima Pubblicazioni", 1, 500, 50, 10)
 
-# Slider Anni
-min_year = int(df['year'].min())
-max_year = int(df['year'].max())
-selected_years = st.sidebar.slider(
-    "Periodo di Analisi",
-    min_year, max_year, (min_year, max_year)
-)
-
-# Filtro Soglia (importante per non avere un "hairball" graph)
-min_pubs = st.sidebar.slider(
-    "Soglia Minima Pubblicazioni (Filtra rumore)",
-    min_value=1, max_value=500, value=50, step=10,
-    help="Mostra solo le connessioni con almeno X pubblicazioni in totale nel periodo selezionato."
-)
-
-# Filtro opzionale per Architettura specifica
 all_archs = sorted(df['architecture'].unique())
-selected_archs = st.sidebar.multiselect(
-    "Filtra per Architetture (Lascia vuoto per tutte)",
-    all_archs,
-    default=[] # Default vuoto = tutte
-)
-
-# Filtro opzionale per Field specifico
 all_fields = sorted(df['field_name'].unique())
-selected_fields = st.sidebar.multiselect(
-    "Filtra per Campi (Lascia vuoto per tutti)",
-    all_fields,
-    default=[]
-)
 
-# 3. Elaborazione Dati
-# Filtra per anni
+selected_archs = st.sidebar.multiselect("Filtra Architetture", all_archs, default=[])
+selected_fields = st.sidebar.multiselect("Filtra Campi", all_fields, default=[])
+
+# --- FILTRAGGIO DATI ---
 mask = (df['year'] >= selected_years[0]) & (df['year'] <= selected_years[1])
 filtered_df = df[mask]
+if selected_archs: filtered_df = filtered_df[filtered_df['architecture'].isin(selected_archs)]
+if selected_fields: filtered_df = filtered_df[filtered_df['field_name'].isin(selected_fields)]
 
-# Filtra per selezione utente (se presente)
-if selected_archs:
-    filtered_df = filtered_df[filtered_df['architecture'].isin(selected_archs)]
-if selected_fields:
-    filtered_df = filtered_df[filtered_df['field_name'].isin(selected_fields)]
+# --- VISUALIZZAZIONE NETWORK ---
+col1, col2, col3 = st.columns(3)
+col1.metric("Pubblicazioni Totali", f"{int(filtered_df['publications'].sum()):,}")
 
-# 4. Visualizzazione
-if filtered_df.empty:
-    st.warning("Nessun dato trovato con i filtri attuali.")
-else:
-    # Costruisci grafo
+if not filtered_df.empty:
     G = build_graph(filtered_df, min_pubs)
-    
-    # Statistiche rapide sopra il grafo
-    col1, col2, col3 = st.columns(3)
-    total_pubs_period = filtered_df['publications'].sum()
-    col1.metric("Pubblicazioni Totali (Periodo)", f"{int(total_pubs_period):,}")
-    col2.metric("Architetture Attive", len([n for n, attr in G.nodes(data=True) if attr.get('group') == 'Tool']))
-    col3.metric("Campi Coinvolti", len([n for n, attr in G.nodes(data=True) if attr.get('group') == 'Field']))
+    col2.metric("Architetture Visibili", len([n for n, a in G.nodes(data=True) if a.get('group')=='Tool']))
+    col3.metric("Campi Visibili", len([n for n, a in G.nodes(data=True) if a.get('group')=='Field']))
 
     if G.number_of_nodes() > 0:
         nt = render_pyvis(G)
-        
-        # Hack per renderizzare PyVis in Streamlit
         with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
             nt.save_graph(tmp_file.name)
             with open(tmp_file.name, 'r', encoding='utf-8') as f:
                 html_data = f.read()
-            st.components.v1.html(html_data, height=750, scrolling=False)
+            st.components.v1.html(html_data, height=650, scrolling=False)
             os.remove(tmp_file.name)
     else:
-        st.warning("Il grafo è vuoto. Prova ad abbassare la 'Soglia Minima Pubblicazioni'.")
+        st.warning("Nessuna connessione supera la soglia minima. Abbassa la 'Soglia Minima Pubblicazioni'.")
+else:
+    st.warning("Nessun dato nel periodo selezionato.")
 
-# 5. Tabella Dati Sottostante
-with st.expander("📋 Visualizza Dati Aggregati"):
-    grouped_display = filtered_df.groupby(['architecture', 'field_name'])['publications'].sum().reset_index().sort_values('publications', ascending=False)
-    st.dataframe(grouped_display, use_container_width=True)
+# =============================================================================
+# NUOVA SEZIONE: ANALISI TEMPORALE DETTAGLIATA
+# =============================================================================
+st.markdown("---")
+st.header("📈 Analisi Temporale (Drill-down)")
+st.markdown("Seleziona un'architettura specifica per vedere come si è evoluta la sua adozione anno per anno nei diversi campi.")
+
+# 1. Selettore dedicato per l'analisi temporale
+drill_arch = st.selectbox("Seleziona Architettura per il dettaglio:", all_archs)
+
+if drill_arch:
+    # Recuperiamo TUTTI i dati storici per questa architettura (ignorando parzialmente i filtri globali per dare contesto)
+    # Manteniamo solo il filtro sui campi se l'utente ne ha selezionati alcuni specifici
+    arch_history = df[df['architecture'] == drill_arch]
+    
+    if selected_fields:
+        arch_history = arch_history[arch_history['field_name'].isin(selected_fields)]
+        
+    # Pivot Table: Righe=Anni, Colonne=Field, Valori=Pubblicazioni
+    # Questo crea la struttura perfetta per st.line_chart
+    chart_data = arch_history.pivot_table(
+        index='year', 
+        columns='field_name', 
+        values='publications', 
+        aggfunc='sum'
+    ).fillna(0)
+    
+    # Assicuriamoci di coprire tutto il range di anni (per non avere buchi nel grafico)
+    full_years = range(int(arch_history['year'].min()), int(arch_history['year'].max()) + 1)
+    chart_data = chart_data.reindex(full_years, fill_value=0)
+
+    # Layout grafico e statistiche
+    c1, c2 = st.columns([3, 1])
+    
+    with c1:
+        st.subheader(f"Curve di Adozione: {drill_arch}")
+        # Streamlit gestisce automaticamente la legenda dei colori in base alle colonne (Fields)
+        st.line_chart(chart_data)
+    
+    with c2:
+        st.subheader("Top Fields")
+        # Mostra i campi che hanno usato di più questa architettura in totale
+        top_fields = arch_history.groupby('field_name')['publications'].sum().sort_values(ascending=False).head(10)
+        st.dataframe(top_fields, height=400)
+
+# --- TABELLA DATI GREZZI ---
+with st.expander("📋 Visualizza Dati Completi"):
+    st.dataframe(filtered_df.sort_values('publications', ascending=False), use_container_width=True)
