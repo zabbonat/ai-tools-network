@@ -5,18 +5,19 @@ import pandas as pd
 import tempfile
 import os
 import numpy as np
+import altair as alt
 
-# Impostazione pagina
+# Page Config
 st.set_page_config(page_title="AI Impact Network", layout="wide")
 
 # -----------------------------------------------------------------------------
-# 1. CARICAMENTO DATI
+# 1. DATA LOADING
 # -----------------------------------------------------------------------------
 @st.cache_data
 def load_data(filepath):
     try:
         df = pd.read_csv(filepath)
-        # Assicuriamoci che i tipi siano corretti
+        # Ensure types are correct
         df['year'] = pd.to_numeric(df['year'], errors='coerce')
         df['publications'] = pd.to_numeric(df['publications'], errors='coerce').fillna(0)
         return df
@@ -24,50 +25,50 @@ def load_data(filepath):
         return None
 
 # -----------------------------------------------------------------------------
-# 2. COSTRUZIONE DEL GRAFO
+# 2. GRAPH CONSTRUCTION
 # -----------------------------------------------------------------------------
 def build_graph(df_filtered, min_pubs_threshold):
-    """Costruisce il grafo pesato basato sulle pubblicazioni aggregate."""
+    """Builds the weighted graph based on aggregated publications."""
     G = nx.Graph()
     
+    # Group data
     grouped = df_filtered.groupby(['architecture', 'field_name'])['publications'].sum().reset_index()
     grouped = grouped[grouped['publications'] >= min_pubs_threshold]
     
     if grouped.empty:
         return G
 
+    # Calculate totals
     arch_totals = grouped.groupby('architecture')['publications'].sum()
     field_totals = grouped.groupby('field_name')['publications'].sum()
     
     def get_size(val):
         return 10 + np.log1p(val) * 8
 
-    # Nodi ARCHITETTURA
+    # Add Nodes
     for arch, count in arch_totals.items():
-        tooltip = f"🛠️ TOOL: {arch}\n📚 Pubs (periodo): {int(count)}"
+        tooltip = f"🛠️ ARCH: {arch}\n📚 Pubs: {int(count)}"
         G.add_node(arch, group='Tool', title=tooltip, value=int(count), 
                    size=get_size(count), color='#00C9FF', shape='dot')
 
-    # Nodi FIELD
     for field, count in field_totals.items():
-        tooltip = f"🌍 FIELD: {field}\n📚 Pubs (periodo): {int(count)}"
+        tooltip = f"🌍 FIELD: {field}\n📚 Pubs: {int(count)}"
         G.add_node(field, group='Field', title=tooltip, value=int(count),
                    size=get_size(count), color='#FF6B6B', shape='dot')
 
-    # ARCHI
+    # Add Edges
     for _, row in grouped.iterrows():
         arch = row['architecture']
         field = row['field_name']
         pubs = row['publications']
         weight = 1 + np.log1p(pubs)
         title_edge = f"{arch} -> {field}: {int(pubs)} papers"
-        
         G.add_edge(arch, field, title=title_edge, width=weight, color='#555555')
         
     return G
 
 # -----------------------------------------------------------------------------
-# 3. RENDERIZZAZIONE PYVIS
+# 3. PYVIS RENDERING
 # -----------------------------------------------------------------------------
 def render_pyvis(G):
     nt = Network(height="600px", width="100%", bgcolor="#1E1E1E", font_color="white")
@@ -91,50 +92,49 @@ def render_pyvis(G):
     return nt
 
 # -----------------------------------------------------------------------------
-# INTERFACCIA STREAMLIT
+# STREAMLIT INTERFACE
 # -----------------------------------------------------------------------------
 
 st.title("🕸️ AI Architecture Diffusion Network")
-st.markdown("Analisi dei flussi di adozione delle architetture AI nei campi scientifici.")
+st.markdown("Analyze how AI architectures are adopted across scientific fields.")
 
-# --- CARICAMENTO ---
+# --- FILE UPLOAD ---
 default_file = 'checkpoint.csv'
-uploaded_file = st.sidebar.file_uploader("Carica CSV Risultati", type=['csv'])
+uploaded_file = st.sidebar.file_uploader("Upload CSV", type=['csv'])
 
 if uploaded_file:
     df = load_data(uploaded_file)
 elif os.path.exists(default_file):
     df = load_data(default_file)
 else:
-    st.error(f"Nessun file trovato. Carica il file '{default_file}'.")
+    st.error("No file found.")
     st.stop()
 
-# --- SIDEBAR FILTRI ---
-st.sidebar.header("🎛️ Filtri Globali")
+# --- SIDEBAR FILTERS ---
+st.sidebar.header("🎛️ Global Filters")
 min_year, max_year = int(df['year'].min()), int(df['year'].max())
-selected_years = st.sidebar.slider("Periodo di Analisi", min_year, max_year, (min_year, max_year))
-min_pubs = st.sidebar.slider("Soglia Minima Pubblicazioni", 1, 500, 50, 10)
+selected_years = st.sidebar.slider("Period", min_year, max_year, (min_year, max_year))
+min_pubs = st.sidebar.slider("Min Pubs Threshold", 1, 500, 50, 10)
 
 all_archs = sorted(df['architecture'].unique())
 all_fields = sorted(df['field_name'].unique())
 
-selected_archs = st.sidebar.multiselect("Filtra Architetture", all_archs, default=[])
-selected_fields = st.sidebar.multiselect("Filtra Campi", all_fields, default=[])
+selected_archs = st.sidebar.multiselect("Filter Archs", all_archs, default=[])
+selected_fields = st.sidebar.multiselect("Filter Fields", all_fields, default=[])
 
-# --- FILTRAGGIO DATI ---
+# --- NETWORK VIZ ---
 mask = (df['year'] >= selected_years[0]) & (df['year'] <= selected_years[1])
 filtered_df = df[mask]
 if selected_archs: filtered_df = filtered_df[filtered_df['architecture'].isin(selected_archs)]
 if selected_fields: filtered_df = filtered_df[filtered_df['field_name'].isin(selected_fields)]
 
-# --- VISUALIZZAZIONE NETWORK ---
 col1, col2, col3 = st.columns(3)
-col1.metric("Pubblicazioni Totali", f"{int(filtered_df['publications'].sum()):,}")
+col1.metric("Total Pubs", f"{int(filtered_df['publications'].sum()):,}")
 
 if not filtered_df.empty:
     G = build_graph(filtered_df, min_pubs)
-    col2.metric("Architetture Visibili", len([n for n, a in G.nodes(data=True) if a.get('group')=='Tool']))
-    col3.metric("Campi Visibili", len([n for n, a in G.nodes(data=True) if a.get('group')=='Field']))
+    col2.metric("Archs", len([n for n, a in G.nodes(data=True) if a.get('group')=='Tool']))
+    col3.metric("Fields", len([n for n, a in G.nodes(data=True) if a.get('group')=='Field']))
 
     if G.number_of_nodes() > 0:
         nt = render_pyvis(G)
@@ -145,55 +145,82 @@ if not filtered_df.empty:
             st.components.v1.html(html_data, height=650, scrolling=False)
             os.remove(tmp_file.name)
     else:
-        st.warning("Nessuna connessione supera la soglia minima. Abbassa la 'Soglia Minima Pubblicazioni'.")
+        st.warning("Graph empty. Lower threshold.")
 else:
-    st.warning("Nessun dato nel periodo selezionato.")
+    st.warning("No data.")
 
 # =============================================================================
-# NUOVA SEZIONE: ANALISI TEMPORALE DETTAGLIATA
+# DRILL-DOWN: TEMPORAL ANALYSIS (AGGIORNATO)
 # =============================================================================
 st.markdown("---")
-st.header("📈 Analisi Temporale (Drill-down)")
-st.markdown("Seleziona un'architettura specifica per vedere come si è evoluta la sua adozione anno per anno nei diversi campi.")
+st.header("📈 Temporal Drill-down")
+st.markdown("Select an architecture to analyze trends.")
 
-# 1. Selettore dedicato per l'analisi temporale
-drill_arch = st.selectbox("Seleziona Architettura per il dettaglio:", all_archs)
+drill_arch = st.selectbox("Select Architecture:", all_archs)
 
 if drill_arch:
-    # Recuperiamo TUTTI i dati storici per questa architettura (ignorando parzialmente i filtri globali per dare contesto)
-    # Manteniamo solo il filtro sui campi se l'utente ne ha selezionati alcuni specifici
+    # 1. Prepara i dati storici completi per l'architettura scelta
     arch_history = df[df['architecture'] == drill_arch]
     
-    if selected_fields:
-        arch_history = arch_history[arch_history['field_name'].isin(selected_fields)]
-        
-    # Pivot Table: Righe=Anni, Colonne=Field, Valori=Pubblicazioni
-    # Questo crea la struttura perfetta per st.line_chart
-    chart_data = arch_history.pivot_table(
-        index='year', 
-        columns='field_name', 
-        values='publications', 
-        aggfunc='sum'
-    ).fillna(0)
+    # Trova tutti i field disponibili per questa architettura
+    available_fields = sorted(arch_history['field_name'].unique())
     
-    # Assicuriamoci di coprire tutto il range di anni (per non avere buchi nel grafico)
-    full_years = range(int(arch_history['year'].min()), int(arch_history['year'].max()) + 1)
-    chart_data = chart_data.reindex(full_years, fill_value=0)
+    # 2. NUOVO CONTROLLO: Multiselect locale per nascondere/mostrare field
+    # Di default mostriamo tutti (o i top 10 per non intasare)
+    default_fields = available_fields[:10] if len(available_fields) > 10 else available_fields
+    
+    c_filter, c_stats = st.columns([3, 1])
+    
+    with c_filter:
+        st.markdown("##### 👁️ Visibility Filter (Uncheck to rescale Y-axis)")
+        fields_to_show = st.multiselect(
+            "Select fields to plot:", 
+            options=available_fields, 
+            default=default_fields
+        )
+    
+    # Filtra i dati in base alla selezione dell'utente (questo causa il rescaling!)
+    plot_data = arch_history[arch_history['field_name'].isin(fields_to_show)]
+    
+    # Aggregazione per il grafico
+    agg_data = plot_data.groupby(['year', 'field_name'])['publications'].sum().reset_index()
 
-    # Layout grafico e statistiche
-    c1, c2 = st.columns([3, 1])
-    
-    with c1:
-        st.subheader(f"Curve di Adozione: {drill_arch}")
-        # Streamlit gestisce automaticamente la legenda dei colori in base alle colonne (Fields)
-        st.line_chart(chart_data)
-    
-    with c2:
-        st.subheader("Top Fields")
-        # Mostra i campi che hanno usato di più questa architettura in totale
-        top_fields = arch_history.groupby('field_name')['publications'].sum().sort_values(ascending=False).head(10)
-        st.dataframe(top_fields, height=400)
+    with c_filter:
+        if not agg_data.empty:
+            # 3. CONFIGURAZIONE ALTAIR INTERATTIVO
+            # Creiamo un selettore che lega il click sulla legenda
+            selection = alt.selection_point(fields=['field_name'], bind='legend')
 
-# --- TABELLA DATI GREZZI ---
-with st.expander("📋 Visualizza Dati Completi"):
+            chart = alt.Chart(agg_data).mark_line(point=True).encode(
+                x=alt.X('year:O', axis=alt.Axis(title='Year', labelAngle=0)),
+                y=alt.Y('publications:Q', axis=alt.Axis(title='Publications')),
+                
+                # Colore condizionale: se selezionato (o nulla selezionato) = colore field, altrimenti grigio
+                color=alt.Color(
+                    'field_name', 
+                    legend=alt.Legend(title="Fields (Click to Highlight)", orient='bottom', columns=4, labelLimit=200)
+                ),
+                
+                # Opacità condizionale: sfuma le linee non selezionate
+                opacity=alt.condition(selection, alt.value(1), alt.value(0.1)),
+                
+                tooltip=['year', 'field_name', 'publications']
+            ).add_params(
+                selection # Attiva l'interattività
+            ).properties(
+                height=500
+            ).interactive()
+
+            st.altair_chart(chart, use_container_width=True)
+        else:
+            st.info("Select at least one field to see the plot.")
+
+    with c_stats:
+        st.markdown("##### 🏆 Top Adopters")
+        if not arch_history.empty:
+            top = arch_history.groupby('field_name')['publications'].sum().sort_values(ascending=False).head(10)
+            st.dataframe(top, height=400)
+
+# --- RAW DATA ---
+with st.expander("📋 View Raw Data"):
     st.dataframe(filtered_df.sort_values('publications', ascending=False), use_container_width=True)
