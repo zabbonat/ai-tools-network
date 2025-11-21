@@ -1,0 +1,201 @@
+architecture,year,field_id,field_name,publications
+Perceptron,2000,11,Agricultural and Biological Sciences,7
+Perceptron,2000,12,Arts and Humanities,9
+Perceptron,2000,13,"Biochemistry, Genetics and Molecular Biology",13
+Perceptron,2000,14,"Business, Management and Accounting",4
+Perceptron,2000,15,Chemical Engineering,2
+Perceptron,2000,16,Chemistry,4
+Perceptron,2000,17,Computer Science,292
+Perceptron,2000,18,Decision Sciences,8
+Perceptron,2000,19,Earth and Planetary Sciences,10
+Perceptron,2000,20,"Economics, Econometrics and Finance",7
+Perceptron,2000,21,Energy,0
+Perceptron,2000,22,Engineering,85
+Perceptron,2000,23,Environmental Science,11
+Perceptron,2000,24,Immunology and Microbiology,0
+Perceptron,2000,25,Materials Science,1
+Perceptron,2000,26,Mathematics,5
+Perceptron,2000,27,Medicine,22
+Perceptron,2000,28,Neuroscience,12
+Perceptron,2000,29,Nursing,0
+Perceptron,2000,30,"Pharmacology, Toxicology and Pharmaceutics",0
+Perceptron,2000,31,Physics and Astronomy,7
+Perceptron,2000,32,Psychology,1
+Perceptron,2000,33,Social Sciences,2
+Perceptron,2000,34,Veterinary,0
+Perceptron,2000,35,Dentistry,0
+Perceptron,2000,36,Health Professions,0
+Perceptron,2001,11,Agricultural and Biological Sciences,5
+Perceptron,2001,12,Arts and Humanities,6
+Perceptron,2001,13,"Biochemistry, Genetics and Molecular Biology",16
+Perceptron,2001,14,"Business, Management and Accounting",3
+Perceptron,2001,15,Chemical Engineering,1
+Perceptron,2001,16,Chemistry,7
+Perceptron,2001,17,Computer Science,213
+Perceptron,2001,18,Decision Sciences,9
+Perceptron,2001,19,Earth and Planetary Sciences,7
+Perceptron,2001,20,"Economics, Econometrics and Finance",3
+Perceptron,2001,21,Energy,1
+Perceptron,2001,22,Engineering,121
+Perceptron,2001,23,Environmental Science,17
+Perceptron,2001,24,Immunology and Microbiology,1
+Perceptron,2001,25,Materials Science,3
+Perceptron,2001,26,Mathematics,3
+Perceptron,2001,27,Medicine,13
+Perceptron,2001,28,Neuroscience,10
+Perceptron,2001,29,Nursing,0
+Perceptron,2001,30,"Pharmacology, Toxicology and Pharmaceutics",0
+Perceptron,2001,31,Physics and Astronomy,11
+Perceptron,2001,32,Psychology,3
+Perceptron,2001,33,Social Sciences,8
+Perceptron,2001,34,Veterinary,0
+Perceptron,2001,35,Dentistry,0
+Perceptron,2001,36,Health Professions,1
+Perceptron,2002,11,Agricultural and Biological Sciences,6
+Perceptron,2002,12,Arts and Humanities,1
+Perceptron,2002,13,"Biochemistry, Genetics and Molecular Biology",15
+Perceptron,2002,14,"Business, Management and Accounting",5
+Perceptron,2002,15,Chemical Engineering,0
+Perceptron,2002,16,Chemistry,13
+Perceptron,2002,17,Computer Science,1045
+Perceptron,2002,18,Decision Sciences,11
+Perceptron,2002,19,Earth and Planetary Sciences,31
+Perceptron,2002,20,"Economics, Econometrics and Finance",4
+Perceptron,2002,21,Energy,1
+Perceptron,2002,22,Engineering,268
+Perceptron,2002,23,Environmental Science,34
+Perceptron,2002,24,Immunology and Microbiology,1
+Perceptron,2002,25,Materials Science,3
+Perceptron,2002,26,Mathematics,4
+Perceptron,2002,27,Medicine,36
+Perceptron,2002,28,Neuroscience,14
+Perceptron,2002,29,Nursing,0
+Perceptron,2002,30,"Pharmacology, Toxicology and Pharmaceutics",0
+Perceptron,2002,31,Physics and Astronomy,20
+Perceptron,2002,32,Psychology,5
+Perceptron,2002,33,Social Sciences,4
+Perceptron,2002,34,Veterinary,1
+Perceptron,2002,35,Dentistry,1
+Perceptron,2002,36,Health Professions,1
+Perceptron,2003,11,Agricultural and Biological Sciences,5
+Perceptron,2003,12,Arts and Humanities,4
+Perceptron,2003,13,"Biochemistry, Genetics and Molecular Biology",29
+Perceptron,2003,14,"Business, Management and Accounting",8
+Perceptron,2003,15,Chemical Engineering,1
+Perceptron,2003,16,Chemistry,8
+Perceptron,2003,17,Computer Science,636
+Perceptron,2003,18,Decision Sciences,10
+Perceptron,2003,19,Earth and Planetary Sciences,16
+Perceptron,2003,20,"Economics, Econometrics and Finance",5
+Perceptron,2003,21,Energy,1
+Perceptron,2003,22,Engineering,198
+Perceptron,2003,23,Environmental Science,47
+Perceptron,2003,24,Immunology and Microbiology,0
+Perceptron,2003,25,Materials Science,3
+Perceptron,2003,26,Mathematics,6
+Perceptron,2003,27,Medicine,24
+Perceptron,2003,28,Neuroscience,13
+Perceptron,2003,29,Nursing,0
+Perceptron,2003,30,"Pharmacology, Toxicology and Pharmaceutics",1
+Perceptron,2003,31,Physics and Astronomy,6
+Perceptron,2003,32,Psychology,3
+Perceptron,2003,33,Social Sciences,4
+Perceptron,2003,34,Veterinary,1
+Perceptron,2003,35,Dentistry,1
+Perceptron,2003,36,Health Professions,2
+Perceptron,2004,11,Agricultural and Biological Sciences,11
+Perceptron,2004,12,Arts and Humanities,9
+Perceptron,2004,13,"Biochemistry, Genetics and Molecular Biology",34
+Perceptron,2004,14,"Business, Management and Accounting",5
+Perceptron,2004,15,Chemical Engineering,3
+Perceptron,2004,16,Chemistry,7
+Perceptron,2004,17,Computer Science,448
+Perceptron,2004,18,Decision Sciences,10
+Perceptron,2004,19,Earth and Planetary Sciences,15
+Perceptron,2004,20,"Economics, Econometrics and Finance",10
+Perceptron,2004,21,Energy,5
+Perceptron,2004,22,Engineering,197
+Perceptron,2004,23,Environmental Science,53
+Perceptron,2004,24,Immunology and Microbiology,1
+Perceptron,2004,25,Materials Science,1
+Perceptron,2004,26,Mathematics,4
+Perceptron,2004,27,Medicine,30
+Perceptron,2004,28,Neuroscience,23
+Perceptron,2004,29,Nursing,0
+Perceptron,2004,30,"Pharmacology, Toxicology and Pharmaceutics",1
+Perceptron,2004,31,Physics and Astronomy,17
+Perceptron,2004,32,Psychology,8
+Perceptron,2004,33,Social Sciences,8
+Perceptron,2004,34,Veterinary,1
+Perceptron,2004,35,Dentistry,0
+Perceptron,2004,36,Health Professions,5
+Perceptron,2005,11,Agricultural and Biological Sciences,6
+Perceptron,2005,12,Arts and Humanities,7
+Perceptron,2005,13,"Biochemistry, Genetics and Molecular Biology",62
+Perceptron,2005,14,"Business, Management and Accounting",15
+Perceptron,2005,15,Chemical Engineering,3
+Perceptron,2005,16,Chemistry,7
+Perceptron,2005,17,Computer Science,558
+Perceptron,2005,18,Decision Sciences,15
+Perceptron,2005,19,Earth and Planetary Sciences,16
+Perceptron,2005,20,"Economics, Econometrics and Finance",5
+Perceptron,2005,21,Energy,0
+Perceptron,2005,22,Engineering,237
+Perceptron,2005,23,Environmental Science,66
+Perceptron,2005,24,Immunology and Microbiology,1
+Perceptron,2005,25,Materials Science,6
+Perceptron,2005,26,Mathematics,3
+Perceptron,2005,27,Medicine,57
+Perceptron,2005,28,Neuroscience,36
+Perceptron,2005,29,Nursing,1
+Perceptron,2005,30,"Pharmacology, Toxicology and Pharmaceutics",0
+Perceptron,2005,31,Physics and Astronomy,23
+Perceptron,2005,32,Psychology,9
+Perceptron,2005,33,Social Sciences,13
+Perceptron,2005,34,Veterinary,0
+Perceptron,2005,35,Dentistry,3
+Perceptron,2005,36,Health Professions,2
+Perceptron,2006,11,Agricultural and Biological Sciences,11
+Perceptron,2006,12,Arts and Humanities,8
+Perceptron,2006,13,"Biochemistry, Genetics and Molecular Biology",66
+Perceptron,2006,14,"Business, Management and Accounting",9
+Perceptron,2006,15,Chemical Engineering,3
+Perceptron,2006,16,Chemistry,25
+Perceptron,2006,17,Computer Science,608
+Perceptron,2006,18,Decision Sciences,24
+Perceptron,2006,19,Earth and Planetary Sciences,24
+Perceptron,2006,20,"Economics, Econometrics and Finance",7
+Perceptron,2006,21,Energy,4
+Perceptron,2006,22,Engineering,283
+Perceptron,2006,23,Environmental Science,52
+Perceptron,2006,24,Immunology and Microbiology,1
+Perceptron,2006,25,Materials Science,10
+Perceptron,2006,26,Mathematics,6
+Perceptron,2006,27,Medicine,48
+Perceptron,2006,28,Neuroscience,26
+Perceptron,2006,29,Nursing,1
+Perceptron,2006,30,"Pharmacology, Toxicology and Pharmaceutics",1
+Perceptron,2006,31,Physics and Astronomy,14
+Perceptron,2006,32,Psychology,8
+Perceptron,2006,33,Social Sciences,6
+Perceptron,2006,34,Veterinary,1
+Perceptron,2006,35,Dentistry,1
+Perceptron,2006,36,Health Professions,13
+Perceptron,2007,11,Agricultural and Biological Sciences,15
+Perceptron,2007,12,Arts and Humanities,2
+Perceptron,2007,13,"Biochemistry, Genetics and Molecular Biology",48
+Perceptron,2007,14,"Business, Management and Accounting",10
+Perceptron,2007,15,Chemical Engineering,2
+Perceptron,2007,16,Chemistry,17
+Perceptron,2007,17,Computer Science,553
+Perceptron,2007,18,Decision Sciences,21
+Perceptron,2007,19,Earth and Planetary Sciences,10
+Perceptron,2007,20,"Economics, Econometrics and Finance",13
+Perceptron,2007,21,Energy,4
+Perceptron,2007,22,Engineering,261
+Perceptron,2007,23,Environmental Science,82
+Perceptron,2007,24,Immunology and Microbiology,1
+Perceptron,2007,25,Materials Science,6
+Perceptron,2007,26,Mathematics,5
+Perceptron,2007,27,Medicine,50
+Perceptron,2007,28,Neuroscience,47
